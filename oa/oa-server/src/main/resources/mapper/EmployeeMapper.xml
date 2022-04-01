@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.zzw.server.mapper.EmployeeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.zzw.server.pojo.Employee">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="birthday" property="birthday"/>
+        <result column="idCard" property="idCard"/>
+        <result column="wedlock" property="wedlock"/>
+        <result column="nationId" property="nationId"/>
+        <result column="nativePlace" property="nativePlace"/>
+        <result column="politicId" property="politicId"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="address" property="address"/>
+        <result column="departmentId" property="departmentId"/>
+        <result column="jobLevelId" property="jobLevelId"/>
+        <result column="posId" property="posId"/>
+        <result column="engageForm" property="engageForm"/>
+        <result column="tiptopDegree" property="tiptopDegree"/>
+        <result column="specialty" property="specialty"/>
+        <result column="school" property="school"/>
+        <result column="beginDate" property="beginDate"/>
+        <result column="workState" property="workState"/>
+        <result column="workID" property="workID"/>
+        <result column="contractTerm" property="contractTerm"/>
+        <result column="conversionTime" property="conversionTime"/>
+        <result column="notWorkDate" property="notWorkDate"/>
+        <result column="beginContract" property="beginContract"/>
+        <result column="endContract" property="endContract"/>
+        <result column="workAge" property="workAge"/>
+        <result column="salaryId" property="salaryId"/>
+    </resultMap>
+
+    <resultMap id="EmployeeInfo" type="cn.zzw.server.pojo.Employee" extends="BaseResultMap">
+        <association property="joblevel" column="cn.zzw.server.pojo.Joblevel">
+            <id column="jname" property="name"/>
+            <result column="jid" property="id"/>
+        </association>
+        <association property="position" column="cn.zzw.server.pojo.Position">
+            <id column="pname" property="name"/>
+            <result column="pid" property="id"/>
+        </association>
+        <association property="nation" column="cn.zzw.server.pojo.Nation">
+            <id column="nname" property="name"/>
+            <result column="nid" property="id"/>
+        </association>
+        <association property="department" column="cn.zzw.server.pojo.Department">
+            <id column="dname" property="name"/>
+            <result column="did" property="id"/>
+        </association>
+        <association property="politicsStatus" column="cn.zzw.server.pojo.PoliticsStatus">
+            <id column="tpname" property="name"/>
+            <result column="tpid" property="id"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="EmployeeWithSalary" type="cn.zzw.server.pojo.Employee" extends="BaseResultMap">
+        <association property="salary" column="cn.zzw.server.pojo.Salary">
+            <id property="id" column="sid"/>
+            <result property="accumulationFundBase" column="saccumulationFundBase"/>
+            <result property="accumulationFundPer" column="saccumulationFundPer"/>
+            <result property="allSalary" column="sallSalary"/>
+            <result property="basicSalary" column="sbasicSalary"/>
+            <result property="bonus" column="sbonus"/>
+            <result property="lunchSalary" column="slunchSalary"/>
+            <result property="medicalBase" column="smedicalBase"/>
+            <result property="medicalPer" column="smedicalPer"/>
+            <result property="name" column="sname"/>
+            <result property="pensionBase" column="spensionBase"/>
+            <result property="pensionPer" column="spensionPer"/>
+            <result property="trafficSalary" column="strafficSalary"/>
+        </association>
+        <association property="department" column="cn.zzw.server.pojo.Department">
+            <result column="dname" property="name"/>
+        </association>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, gender, birthday, idCard, wedlock, nationId, nativePlace, politicId, email, phone, address,
+        departmentId, jobLevelId, posId, engageForm, tiptopDegree, specialty, school, beginDate, workState, workID,
+        contractTerm, conversionTime, notWorkDate, beginContract, endContract, workAge, salaryId
+    </sql>
+
+<!--    获取所有员工信息(分页)-->
+    <select id="getEmployeeByPage" resultMap="EmployeeInfo">
+    SELECT
+        te.*,tj.`id` AS jid,tj.`name` AS jname,tp.`id` AS pid,tp.`name` AS pname,
+        tn.`id` AS nid,tn.`name` AS nname,ts.`id` AS sid,ts.`name` AS sname,
+        td.`id` AS did,td.`name` AS dname,tps.`id` AS tpid,tps.`name` AS tpname
+    FROM
+        t_employee te
+        LEFT JOIN t_joblevel tj ON tj.`id`=te.`jobLevelId`
+        LEFT JOIN t_position tp ON tp.`id`=te.`posId`
+        LEFT JOIN t_nation tn ON tn.`id`=te.`nationId`
+        LEFT JOIN t_salary ts ON ts.`id`=te.`salaryId`
+        LEFT JOIN t_department td ON td.`id`=te.`departmentId`
+        LEFT JOIN t_politics_status tps ON tps.`id`=te.`politicId`
+    <where>
+        <if test="employee.name!=null and employee.name!=''">
+             AND te.name LIKE CONCAT('%',#{employee.name},'%')
+        </if>
+        <if test="employee.jobLevelId!=null">
+            AND  te.`jobLevelId`=#{employee.jobLevelId}
+        </if>
+        <if test="employee.posId!=null">
+            AND  te.`posId`=#{employee.posId}
+        </if>
+        <if test="employee.nationId!=null">
+            AND  te.`nationId`=#{employee.nationId}
+        </if>
+        <if test="employee.salaryId!=null">
+            AND  te.`salaryId`=#{employee.salaryId}
+        </if>
+        <if test="employee.departmentId!=null">
+            AND  te.`departmentId`=#{employee.departmentId}
+        </if>
+        <if test="employee.politicId!=null">
+            AND  te.`politicId`=#{employee.politicId}
+        </if>
+        <if test="employee.engageForm!=null and employee.engageForm!=''">
+            AND  te.`engageForm`=#{employee.engageForm}
+        </if>
+        <if test="beginDateScope!=null and 2==beginDateScope">
+            AND te.beginDate BETWEEN #{beginDateScope[0]} and #{beginDateScope[1]}
+        </if>
+    </where>
+        order by te.id
+    </select>
+
+    <select id="getEmployee" resultMap="EmployeeInfo">
+        SELECT
+            te.*,
+            tj.`id` AS jid,
+            tj.`name` AS jname,
+            tp.`id` AS pid,
+            tp.`name` AS pname,
+            tn.`id` AS nid,
+            tn.`name` AS nname,
+            ts.`id` AS sid,
+            ts.`name` AS sname,
+            td.`id` AS did,
+            td.`name` AS dname,
+            tps.`id` AS tpid,
+            tps.`name` AS tpname
+        FROM
+            t_employee te
+            LEFT JOIN t_joblevel tj
+                ON tj.`id` = te.`jobLevelId`
+            LEFT JOIN t_position tp
+                ON tp.`id` = te.`posId`
+            LEFT JOIN t_nation tn
+                ON tn.`id` = te.`nationId`
+            LEFT JOIN t_salary ts
+                ON ts.`id` = te.`salaryId`
+            LEFT JOIN t_department td
+                ON td.`id` = te.`departmentId`
+            LEFT JOIN t_politics_status tps
+                ON tps.`id` = te.`politicId`
+        <where>
+            <if test="id!=null">
+                te.id=#{id}
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="empList" type="cn.zzw.server.pojo.Employee">
+        <id property="id" column="id"/>
+        <association property="department" javaType="cn.zzw.server.pojo.Department">
+            <result property="name" column="dName"/>
+        </association>
+        <association property="position" javaType="cn.zzw.server.pojo.Position">
+            <result property="name" column="pName"/>
+        </association>
+        <association property="politicsStatus" javaType="cn.zzw.server.pojo.PoliticsStatus">
+            <result property="name" column="tpsName"/>
+        </association>
+        <association property="nation" javaType="cn.zzw.server.pojo.Nation">
+            <result property="name" column="tName"/>
+        </association>
+        <association property="joblevel" javaType="cn.zzw.server.pojo.Joblevel">
+            <result property="name" column="tjName"/>
+        </association>
+    </resultMap>
+
+    <!--// 分页显示员工基本资料列表, 并按员工名模糊查询及政治面貌、部门、入职时间查询-->
+    <select id="selectByPage" resultMap="empList">
+        SELECT e.*,d.`name` dName,p.`name` pName, tps.`name` tpsName,tn.`name` tName,tj.`name` tjName
+        FROM `t_employee` e,`t_department` d,`t_position` p,`t_politics_status` tps,`t_nation` tn,`t_joblevel` tj
+        WHERE e.`departmentId` = d.`id` AND e.`posId` = p.`id` AND tps.id = e.`politicId` AND tn.`id` = e.`nationId` AND tj.`id` = e.`jobLevelId`
+        <if test="query != null and query != ''">
+            AND e.name like CONCAT('%', #{query},'%')
+        </if>
+        <if test="politicsId != null and politicsId != 0">
+            AND e.`politicId` = #{politicsId}
+        </if>
+        <if test="deptId != null and deptId != 0">
+            AND e.`departmentId` = #{deptId}
+        </if>
+        <if test="beginTime != null and beginTime != '' and endTime != null">
+            AND e.`beginDate` between #{beginTime} AND #{endTime}
+        </if>
+        <if test="sort != null and sort == '+id'">
+            ORDER BY e.id ASC
+        </if>
+        <if test="sort != null and sort == '-id'">
+            ORDER BY e.id DESC
+        </if>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,8 @@
+#格式FROM image:tag，指定使用java:8作为运行环境。
+FROM java:8
+#将本地target/目录下的oa-server-1.0.jar包复制到docker容器中，并再次取名oa-server-1.0.jar
+ADD target/oa-server-1.0.jar oa-server-1.0.jar
+#设置itripeureka注册中心容器运行时的服务端口号
+EXPOSE 8081
+#意思是：使用java -jar命令运行oa-server-1.0.jar项目。
+ENTRYPOINT ["java","-jar","oa-server-1.0.jar"]

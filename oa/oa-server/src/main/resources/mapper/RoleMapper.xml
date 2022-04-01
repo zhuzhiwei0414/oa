@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.zzw.server.mapper.RoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.zzw.server.pojo.Role">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="nameZh" property="nameZh"/>
+    </resultMap>
+
+<!--    通过用户id查询角色列表-->
+    <select id="getRoles" resultType="cn.zzw.server.pojo.Role">
+        SELECT
+          *
+        FROM
+          t_role AS r
+          LEFT JOIN t_admin_role AS ar
+            ON ar.`rid`=  r.`id`
+          LEFT JOIN t_admin AS a
+            ON a.id = ar.adminId
+        WHERE ar.`adminId` =#{adminId}
+    </select>
+
+    <!--根据角色ID查询该角色所拥有的所有权限-->
+    <select id="findMenuByRole" resultType="cn.zzw.server.pojo.Menu">
+     SELECT * FROM `t_menu` WHERE `id` IN(
+        SELECT `mid` FROM `t_menu_role` tr WHERE tr.rid = #{roleId})
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, nameZh
+    </sql>
+
+</mapper>
