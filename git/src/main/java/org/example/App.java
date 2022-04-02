@@ -15,5 +15,7 @@ public class App
         System.out.println( "Hello World 我是帅B!" );
         System.out.println( "Hello World 我裂开了!" );
         System.out.println( "Hello World 我裂开了!" );
+        System.out.println( "Hello World 岗林小老弟" );
+        System.out.println( "Hello World 我是弟弟" );
     }
 }
